@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSW Pharmacist Inhaler Assistant – Asthma & COPD</title>
+<style>
+  :root {
+    --primary: #1a5276;
+    --secondary: #2980b9;
+    --accent: #27ae60;
+    --warn: #e67e22;
+    --danger: #c0392b;
+    --light: #eaf4fb;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --border: #d0dce8;
+    --text: #1a2535;
+    --muted: #607080;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  header { background: var(--primary); color: #fff; padding: 18px 28px; display: flex; align-items: center; gap: 14px; }
+  header .logo { font-size: 2rem; }
+  header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.3; }
+  header p { font-size: 0.82rem; opacity: 0.8; margin-top: 2px; }
+  .disclaimer { background: #fff3cd; border-left: 4px solid #e67e22; padding: 10px 16px; font-size: 0.82rem; color: #7d4e0d; }
+  nav { background: #fff; border-bottom: 2px solid var(--border); display: flex; gap: 0; overflow-x: auto; }
+  nav button { padding: 13px 22px; border: none; background: none; cursor: pointer; font-size: 0.92rem; color: var(--muted); font-weight: 500; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  nav button:hover { color: var(--secondary); background: var(--light); }
+  nav button.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 18px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 4px #00000010; }
+  .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .card h3 { font-size: 0.97rem; color: var(--secondary); margin: 12px 0 8px; }
+  .card p, .card li { font-size: 0.9rem; line-height: 1.65; color: var(--text); }
+  .card ul { padding-left: 18px; }
+  .card ul li { margin-bottom: 4px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+  .badge-blue { background: #d6eaf8; color: #1a5276; }
+  .badge-green { background: #d5f5e3; color: #1e8449; }
+  .badge-orange { background: #fdebd0; color: #9c4a0d; }
+  .badge-red { background: #fadbd8; color: #922b21; }
+  .badge-grey { background: #eaecee; color: #555; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:680px){ .grid2 { grid-template-columns: 1fr; } }
+  .search-box { display: flex; gap: 10px; margin-bottom: 18px; }
+  .search-box input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.95rem; }
+  .search-box input:focus { outline: none; border-color: var(--secondary); }
+  select { padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.92rem; background: #fff; color: var(--text); cursor: pointer; }
+  select:focus { outline: none; border-color: var(--secondary); }
+  .filter-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; align-items: center; }
+  .filter-row label { font-size: 0.88rem; color: var(--muted); font-weight: 600; }
+  .ae-box { background: #fff8f0; border: 1px solid #f5cba7; border-radius: 8px; padding: 12px 15px; margin-top: 8px; }
+  .ae-box h4 { color: var(--warn); font-size: 0.88rem; margin-bottom: 5px; }
+  .ci-box { background: #fdf2f2; border: 1px solid #f5b7b1; border-radius: 8px; padding: 12px 15px; margin-top: 8px; }
+  .ci-box h4 { color: var(--danger); font-size: 0.88rem; margin-bottom: 5px; }
+  .counsel-box { background: #eafaf1; border: 1px solid #a9dfbf; border-radius: 8px; padding: 12px 15px; margin-top: 8px; }
+  .counsel-box h4 { color: var(--accent); font-size: 0.88rem; margin-bottom: 5px; }
+  .step-list { counter-reset: step; padding-left: 0; list-style: none; }
+  .step-list li { counter-increment: step; display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; font-size: 0.9rem; }
+  .step-list li::before { content: counter(step); min-width: 24px; height: 24px; background: var(--secondary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .device-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--light); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 0.8rem; margin: 3px 2px; }
+  .tag-pMDI { background: #d6eaf8; border-color: #a9cce3; }
+  .tag-DPI  { background: #d5f5e3; border-color: #a9dfbf; }
+  .tag-SMI  { background: #e8daef; border-color: #c39bd3; }
+  .info-icon { cursor: pointer; color: var(--secondary); font-size: 1rem; }
+  .accordion summary { cursor: pointer; font-weight: 600; font-size: 0.93rem; color: var(--primary); padding: 6px 0; }
+  .accordion[open] summary { color: var(--secondary); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { background: var(--primary); color: #fff; padding: 9px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--light); }
+  .checklist-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .checklist-item input[type=checkbox] { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+  .checklist-item label { font-size: 0.9rem; }
+  .btn { padding: 8px 18px; border-radius: 7px; border: none; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: background 0.2s; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--secondary); }
+  .btn-outline { background: none; border: 1.5px solid var(--secondary); color: var(--secondary); }
+  .btn-outline:hover { background: var(--light); }
+  #drugResult { margin-top: 0; }
+  .hidden { display: none; }
+  .drug-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+  .alert-box { background: #fdf9e8; border: 1px solid #f9e79f; border-radius: 8px; padding: 11px 15px; margin-bottom: 14px; font-size: 0.88rem; color: #7d6608; }
+  .alert-box strong { color: #b7770d; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">💊</div>
+  <div>
+    <h1>NSW Pharmacist Inhaler Assistant</h1>
+    <p>Asthma &amp; COPD Dispensing &amp; Counselling Tool &nbsp;|&nbsp; Based on Australian Asthma Handbook &amp; COPD-X Guidelines</p>
+  </div>
+</header>
+
+<div class="disclaimer">
+  ⚠️ <strong>Clinical Reference Tool Only.</strong> Always verify against current AMH, PBS criteria, and individual CMI. This tool is not a substitute for professional clinical judgment. For NSW pharmacists only.
+</div>
+
+<nav>
+  <button class="active" onclick="showSection('medicines')">💊 Medicines</button>
+  <button onclick="showSection('asthma')">🫁 Asthma Tx Levels</button>
+  <button onclick="showSection('copd')">🌬️ COPD Stepwise</button>
+  <button onclick="showSection('devices')">🔧 Inhaler Devices</button>
+  <button onclick="showSection('counsel')">📋 Counselling Checklist</button>
+  <button onclick="showSection('spacers')">💨 Spacers</button>
+  <button onclick="showSection('exacerbation')">🚨 Exacerbation</button>
+</nav>
+
+<!-- ===== MEDICINES ===== -->
+<div id="medicines" class="section active">
+<div class="container">
+  <div class="card">
+    <h2>🔍 Drug Reference – Adverse Effects, Contraindications &amp; Counselling</h2>
+    <div class="filter-row">
+      <label>Filter by class:</label>
+      <select id="drugClassFilter" onchange="filterDrugs()">
+        <option value="all">All Classes</option>
+        <option value="SABA">SABA</option>
+        <option value="LABA">LABA</option>
+        <option value="ICS">ICS</option>
+        <option value="ICS-LABA">ICS-LABA</option>
+        <option value="SAMA">SAMA</option>
+        <option value="LAMA">LAMA</option>
+        <option value="LAMA-LABA">LAMA-LABA</option>
+        <option value="ICS-LABA-LAMA">ICS-LABA-LAMA</option>
+        <option value="LTRA">LTRA</option>
+      </select>
+      <select id="indicationFilter" onchange="filterDrugs()">
+        <option value="all">All Indications</option>
+        <option value="asthma">Asthma</option>
+        <option value="copd">COPD</option>
+      </select>
+    </div>
+    <div id="drugList"></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== ASTHMA TX LEVELS ===== -->
+<div id="asthma" class="section">
+<div class="container">
+  <div class="card">
+    <h2>🫁 Asthma Treatment Levels – Adults &amp; Adolescents (≥12 yrs)</h2>
+    <div class="alert-box"><strong>2025 Update:</strong> SABA monotherapy is no longer recommended in adults/adolescents. The recommended approach uses ICS-formoterol as the reliever (Anti-Inflammatory Reliever / AIR therapy). SABA remains an alternative option only.</div>
+    <table>
+      <tr><th>Level</th><th>ICS-Formoterol (Recommended)</th><th>SABA-based (Alternative)</th></tr>
+      <tr>
+        <td><strong>1</strong><br><span class="badge badge-green">Mild / Initial</span></td>
+        <td>Budesonide–formoterol (low dose) <em>as needed</em><br><small>Suitable initial and long-term for most patients</small></td>
+        <td>ICS maintenance (low dose) + SABA as needed</td>
+      </tr>
+      <tr>
+        <td><strong>2</strong><br><span class="badge badge-blue">Moderate</span></td>
+        <td>ICS–formoterol MART (low dose)<br><small>Consider starting here if frequent/severe symptoms or high exacerbation risk</small></td>
+        <td>ICS-LABA maintenance (low dose) + SABA as needed</td>
+      </tr>
+      <tr>
+        <td><strong>3</strong><br><span class="badge badge-orange">Severe</span></td>
+        <td>ICS–formoterol MART (medium dose)</td>
+        <td>ICS-LABA maintenance (medium dose) + SABA as needed</td>
+      </tr>
+      <tr>
+        <td><strong>4</strong><br><span class="badge badge-red">Very Severe</span></td>
+        <td colspan="2"><strong>Targeted intensive treatment &amp; specialist review.</strong> Consider add-on LAMA or trial of high dose ICS-LABA</td>
+      </tr>
+    </table>
+    <div class="card" style="margin-top:16px; background:#f0f7fb;">
+      <h3>⬆️ Stepping Up / ⬇️ Stepping Down</h3>
+      <ul>
+        <li><strong>Before stepping up:</strong> Confirm symptoms are due to asthma, check inhaler technique is correct, confirm adherence is adequate</li>
+        <li><strong>Step up if:</strong> Good symptom control not achieved despite good adherence and correct inhaler technique</li>
+        <li><strong>Step down if:</strong> Asthma stable and well-controlled for 2–3 months</li>
+        <li><strong>Switching:</strong> Consider switching ICS-LABA → ICS-formoterol MART to reduce severe exacerbation risk</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:16px; background:#f0f7fb;">
+      <h3>👶 Children 6–11 Years</h3>
+      <ul>
+        <li>Rapid-acting bronchodilators for symptom relief for all children</li>
+        <li>ICS added when indicated to prevent exacerbations</li>
+        <li>Prefer pMDI + spacer; DPI can be considered from age 10–11 yrs with training</li>
+        <li>LABA use in children &lt;6 yrs not generally recommended</li>
+      </ul>
+      <h3 style="margin-top:12px;">👶 Children 1–5 Years</h3>
+      <ul>
+        <li>Use pMDI + spacer always</li>
+        <li>&lt;3 yrs: attach closely fitting mask to small spacer</li>
+        <li>4–5 yrs: spacer + mouthpiece</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:16px; background:#fef9e7;">
+      <h3>📝 Asthma Action Plan</h3>
+      <ul>
+        <li>Written asthma action plans are one of the most effective asthma interventions</li>
+        <li>Check at every visit whether patient has a current, up-to-date written asthma action plan</li>
+        <li>In 2022, only 32% of adults had a written plan (71% of children under 14)</li>
+        <li>Direct patients to: <a href="https://www.nationalasthma.org.au/living-with-asthma/asthma-action-plans" target="_blank">nationalasthma.org.au/asthma-action-plans</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== COPD STEPWISE ===== -->
+<div id="copd" class="section">
+<div class="container">
+  <div class="card">
+    <h2>🌬️ COPD Stepwise Management (Stable COPD)</h2>
+    <p style="margin-bottom:14px; font-size:0.88rem; color:var(--muted);">Based on COPD-X Plan / COPD-X Handbook (Lung Foundation Australia)</p>
+    <table>
+      <tr><th>Step</th><th>Treatment</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>1 – Mild</strong><br>FEV₁ ≥60%</td>
+        <td>SABA (salbutamol/terbutaline) <em>as needed</em><br><em>OR</em> SAMA (ipratropium) <em>as needed</em></td>
+        <td>Individualise based on response, AEs &amp; patient preference. Combining SABA + SAMA may provide additional benefit.</td>
+      </tr>
+      <tr>
+        <td><strong>2 – Moderate</strong><br>FEV₁ 40–59%</td>
+        <td>Add LAMA <em>or</em> LABA (regular)<br>Continue SABA as needed</td>
+        <td>LAMAs often preferred first (may be more effective at preventing exacerbations). If inadequate response, swap to other class or combine.</td>
+      </tr>
+      <tr>
+        <td><strong>3 – Moderate–Severe</strong></td>
+        <td>LAMA + LABA (combination)<br>Continue SABA as needed</td>
+        <td>Fixed-dose LAMA-LABA inhalers are convenient. Stop ipratropium when starting a LAMA. Stop previous inhalers containing same class drugs.</td>
+      </tr>
+      <tr>
+        <td><strong>4 – Severe</strong><br>FEV₁ &lt;50% + ≥2 exacerbations/yr</td>
+        <td>Consider adding ICS (triple therapy: ICS-LABA-LAMA)<br>Continue SABA as needed</td>
+        <td>ICS increases pneumonia risk. Consider single inhaler triple therapy (SITT). Check PBS criteria. No role for ICS monotherapy in COPD.</td>
+      </tr>
+    </table>
+    <div class="card" style="margin-top:14px; background:#f0f7fb;">
+      <h3>⚠️ Before Stepping Up</h3>
+      <ul>
+        <li>Check inhaler technique and adherence</li>
+        <li>Minimise inhaler device polypharmacy</li>
+        <li>Check TGA and PBS current criteria</li>
+        <li>When adding fixed-dose combination inhalers — stop all previous inhalers containing drugs from same class (important pharmacist role)</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:14px; background:#eafaf1;">
+      <h3>🚭 Non-Pharmacological (all patients)</h3>
+      <ul>
+        <li><strong>Smoking cessation</strong> – most important intervention (reduces lung function decline by 50%, prolongs survival). Offer Quitline 13 QUIT (13 7848) at every visit</li>
+        <li>Annual influenza vaccine + pneumococcal + COVID-19 vaccines</li>
+        <li>Pulmonary rehabilitation (refer all patients with functional impairment)</li>
+        <li>Written COPD Action Plan</li>
+        <li>Regular exercise &amp; physical activity</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:14px; background:#fef9e7;">
+      <h3>🫁 Asthma-COPD Overlap</h3>
+      <ul>
+        <li>Both conditions can coexist – consider if patient has features of both</li>
+        <li>Large bronchodilator response may suggest coexisting asthma</li>
+        <li>If asthma features present: add ICS therapy + long-acting bronchodilators</li>
+        <li>LABA monotherapy without ICS is contraindicated if asthma component present</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== DEVICES ===== -->
+<div id="devices" class="section">
+<div class="container">
+  <div class="card">
+    <h2>🔧 Inhaler Device Reference</h2>
+    <p style="margin-bottom:14px; font-size:0.88rem;">Use the checklists from National Asthma Council when checking patient technique. <a href="https://www.nationalasthma.org.au/health-professionals/resource-library/inhaler-technique-checklists" target="_blank">NAC Checklists ↗</a> &nbsp;|&nbsp; <a href="https://www.nationalasthma.org.au/living-with-asthma/how-to-videos" target="_blank">How-to Videos ↗</a></p>
+    <table>
+      <tr><th>Device Type</th><th>Brand Examples</th><th>Key Technique Points</th><th>Indications</th></tr>
+      <tr>
+        <td><span class="device-chip tag-pMDI">pMDI</span></td>
+        <td>Ventolin, Asmol, Airomir Autohaler, Atrovent, Fostair, Seretide, Symbicort Rapihaler, QVAR, Alvesco, Flutiform, Trimbow, Breztri Aerosphere</td>
+        <td>
+          <ul>
+            <li>Shake before use (most)</li>
+            <li>Slow, deep inhalation; coordinate actuation with breath</li>
+            <li><strong>Use with spacer</strong> (except Autohaler)</li>
+            <li>Breathhold 5–10 sec after</li>
+            <li>Prime before first use or after non-use</li>
+            <li>Clean mouthpiece weekly</li>
+          </ul>
+        </td>
+        <td>Asthma, COPD</td>
+      </tr>
+      <tr>
+        <td><span class="device-chip tag-DPI">DPI – Turbuhaler</span></td>
+        <td>Bricanyl, Symbicort, DuoResp Spiromax, Bufomix Easyhaler, Pulmicort, Oxis</td>
+        <td>
+          <ul>
+            <li>Hold upright when loading dose</li>
+            <li>Twist and click (device-specific)</li>
+            <li>Forceful, fast inhalation</li>
+            <li>Do NOT exhale into device</li>
+            <li>Wipe mouthpiece with dry cloth – never wet</li>
+          </ul>
+        </td>
+        <td>Asthma, COPD</td>
+      </tr>
+      <tr>
+        <td><span class="device-chip tag-DPI">DPI – Accuhaler</span></td>
+        <td>Seretide Accuhaler, Flixotide Accuhaler, Serevent, Fluticasone Cipla, Salflumix</td>
+        <td>
+          <ul>
+            <li>Open, slide lever to prepare dose</li>
+            <li>Fast, deep inhalation</li>
+            <li>Hold breath 5–10 sec</li>
+            <li>Do NOT exhale into device</li>
+          </ul>
+        </td>
+        <td>Asthma, COPD</td>
+      </tr>
+      <tr>
+        <td><span class="device-chip tag-DPI">DPI – Ellipta</span></td>
+        <td>Breo (fluticasone furoate/vilanterol), Incruse (umeclidinium), Anoro, Trelegy</td>
+        <td>
+          <ul>
+            <li>Open cover to prepare dose (don't press button)</li>
+            <li>Breathe out away from device</li>
+            <li>Fast, deep inhalation</li>
+            <li>Hold breath 5–10 sec</li>
+          </ul>
+        </td>
+        <td>COPD; Breo for asthma</td>
+      </tr>
+      <tr>
+        <td><span class="device-chip tag-DPI">DPI – Breezhaler</span></td>
+        <td>Seebri (glycopyrronium), Onbrez (indacaterol), Ultibro, Atectura, Enerzair</td>
+        <td>
+          <ul>
+            <li>Load capsule each time – pierce before use</li>
+            <li>Fast, deep inhalation (hear capsule rattle)</li>
+            <li>Check capsule is empty</li>
+            <li>Capsules must stay in blister pack until use</li>
+          </ul>
+        </td>
+        <td>COPD; some for asthma</td>
+      </tr>
+      <tr>
+        <td><span class="device-chip tag-DPI">DPI – Genuair</span></td>
+        <td>Bretaris (aclidinium)</td>
+        <td>
+          <ul>
+            <li>Press button down to load, breathe out away from device</li>
+            <li>Fast, deep inhalation until click heard</li>
+            <li>Window turns green when dose taken correctly</li>
+          </ul>
+        </td>
+        <td>COPD</td>
+      </tr>
+      <tr>
+        <td><span class="device-chip tag-SMI">SMI – Respimat</span></td>
+        <td>Spiriva Respimat (tiotropium), Spiolto</td>
+        <td>
+          <ul>
+            <li>Insert cartridge first use; turn base, open cap, press button</li>
+            <li>Slow inhalation (slower than DPI)</li>
+            <li>Keep inhaler upright, hold breath 10 sec</li>
+            <li>Requires cartridge insertion</li>
+          </ul>
+        </td>
+        <td>COPD; tiotropium for asthma ≥6 yrs (add-on)</td>
+      </tr>
+      <tr>
+        <td><span class="device-chip tag-DPI">DPI – HandiHaler / Zonda</span></td>
+        <td>Spiriva HandiHaler (tiotropium), Braltus Zonda</td>
+        <td>
+          <ul>
+            <li>Load capsule each use into device (device purchased separately for HandiHaler)</li>
+            <li>Pierce capsule before use</li>
+            <li>Fast, deep inhalation – hear capsule rattle</li>
+            <li>Do NOT swallow capsule</li>
+          </ul>
+        </td>
+        <td>COPD</td>
+      </tr>
+    </table>
+    <div style="margin-top:14px; font-size:0.85rem; color:var(--muted);">
+      <strong>Notes:</strong> Handihaler, Breezhaler, Zonda and Aerolizer require a capsule loaded into device. Respimat requires cartridge insertion. All other devices are preloaded. Where possible, pMDIs should be used with a spacer.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== COUNSELLING CHECKLIST ===== -->
+<div id="counsel" class="section">
+<div class="container">
+  <div class="grid2">
+    <div class="card">
+      <h2>✅ Asthma Dispensing Checklist</h2>
+      <div id="asthmaCL">
+        <div class="checklist-item"><input type="checkbox" id="a1"><label for="a1">Confirm indication (asthma confirmed by doctor; not COPD only)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a2"><label for="a2">Verify current treatment level &amp; confirm prescription aligns with Australian Asthma Handbook</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a3"><label for="a3">Ask patient about symptom frequency &amp; reliever use (overuse = step up indicator)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a4"><label for="a4">Confirm patient has current written Asthma Action Plan</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a5"><label for="a5">Demonstrate inhaler technique using placebo device; ask patient to return-demonstrate</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a6"><label for="a6">ICS or ICS-combination inhaler: advise rinse mouth, gargle and spit after each use</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a7"><label for="a7">Advise spacer use with pMDI (except Autohaler)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a8"><label for="a8">Maintenance therapy: counsel to use every day even when feeling well</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a9"><label for="a9">Counsel on trigger avoidance (smoke, allergens, exercise, cold air, NSAIDs if applicable)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a10"><label for="a10">Advise avoid vaping/e-cigarettes</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a11"><label for="a11">Immunisations: influenza, pneumococcal, pertussis, RSV, COVID-19 up to date?</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a12"><label for="a12">Advise patient to tell doctor if needing reliever more frequently or in higher doses</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a13"><label for="a13">Check for montelukast: counsel on neuropsychiatric effects (TGA 2025 warning), take in evening</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a14"><label for="a14">SABA (OTC salbutamol/terbutaline): apply Pharmacist Only Medicine obligations per APF guideline</label></div>
+        <div class="checklist-item"><input type="checkbox" id="a15"><label for="a15">Refer back to doctor if poorly controlled or step-up needed</label></div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:12px;" onclick="resetCL('a',15)">Reset</button>
+    </div>
+    <div class="card">
+      <h2>✅ COPD Dispensing Checklist</h2>
+      <div id="copdCL">
+        <div class="checklist-item"><input type="checkbox" id="c1"><label for="c1">Confirm COPD diagnosis (spirometry confirmed; post-BD FEV₁/FVC &lt;0.7)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c2"><label for="c2">Identify all current inhalers — check for duplicate drug classes &amp; polypharmacy</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c3"><label for="c3">When adding new fixed-dose combo: ensure previous inhalers of same class are stopped</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c4"><label for="c4">Stop ipratropium if patient is commencing a LAMA</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c5"><label for="c5">Counsel on purpose of each inhaler (reliever vs maintenance)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c6"><label for="c6">Demonstrate device technique; use placebo; ask return-demonstration</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c7"><label for="c7">LAMA/ipratropium: warn not to get mist/powder in eyes (risk of acute angle-closure glaucoma)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c8"><label for="c8">LAMA/ipratropium: advise report eye pain, blurred vision, visual halos, difficulty urinating</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c9"><label for="c9">ICS in COPD: warn of increased pneumonia risk; advise rinse mouth after use</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c10"><label for="c10">Encourage smoking cessation; provide Quitline 13 7848 details</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c11"><label for="c11">Immunisations: influenza, pneumococcal, COVID-19 up to date?</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c12"><label for="c12">Patient has written COPD Action Plan?</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c13"><label for="c13">Advise check inhaler technique every 6 months or after exacerbation</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c14"><label for="c14">Refer to pulmonary rehabilitation if symptomatic</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c15"><label for="c15">Consider referral for HMR/RMMR if complex medication regimen</label></div>
+        <div class="checklist-item"><input type="checkbox" id="c16"><label for="c16">Refer back to doctor if symptoms uncontrolled or frequent exacerbations</label></div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:12px;" onclick="resetCL('c',16)">Reset</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== SPACERS ===== -->
+<div id="spacers" class="section">
+<div class="container">
+  <div class="card">
+    <h2>💨 Spacer Use &amp; Maintenance</h2>
+    <h3>Who Should Use a Spacer?</h3>
+    <ul>
+      <li>All children using pMDI</li>
+      <li>Adults with poor hand-breath coordination</li>
+      <li>During acute asthma attacks</li>
+      <li>Patients using ICS (especially at higher doses) – reduces oropharyngeal candidiasis &amp; dysphonia</li>
+      <li>All patients using reliever via pMDI</li>
+      <li><strong>Note:</strong> Not required for Autohaler (breath-actuated)</li>
+    </ul>
+    <h3>Choosing the Right Spacer</h3>
+    <ul>
+      <li><strong>Children &lt;5 yrs:</strong> Small-volume spacer (60–160 mL) with face mask</li>
+      <li><strong>Children 5–6 yrs:</strong> Small spacer with mouthpiece</li>
+      <li><strong>Children ≥7 yrs &amp; adults:</strong> Standard spacer with mouthpiece</li>
+      <li>Large-volume spacers (650–850 mL) are more efficient but unsuitable for children &lt;5 yrs (insufficient tidal volume)</li>
+    </ul>
+    <h3>Spacer Technique (Adults/Children ≥7)</h3>
+    <ol class="step-list">
+      <li>Shake inhaler and attach to spacer</li>
+      <li>Breathe out normally (away from spacer)</li>
+      <li>Place mouthpiece in mouth, seal lips</li>
+      <li>Press canister once to release dose</li>
+      <li>Breathe in slowly and deeply</li>
+      <li>Hold breath 5–10 seconds (or breathe in and out 4–5 times if using valved spacer)</li>
+      <li>Wait 30–60 seconds before second puff</li>
+    </ol>
+    <h3>Spacer Cleaning Instructions</h3>
+    <div class="counsel-box">
+      <h4>✅ Cleaning Protocol</h4>
+      <ul>
+        <li>Wash <strong>before first use</strong>, then <strong>once a month</strong></li>
+        <li>Wash in warm water with dishwashing detergent</li>
+        <li><strong>Do NOT rinse</strong> after washing</li>
+        <li><strong>Air dry only</strong> – do not dry with cloth (static causes medication to stick)</li>
+        <li>Check for cracks; ensure valve is functioning correctly</li>
+        <li>Replace if cracked, discoloured, or valve not working</li>
+      </ul>
+    </div>
+    <h3>Benefits of Spacer Use</h3>
+    <ul>
+      <li>Less hand-breath coordination required</li>
+      <li>Improved pulmonary drug deposition</li>
+      <li>Reduced cough reflex &amp; oropharyngeal deposition</li>
+      <li>Fewer local adverse effects (candidiasis, dysphonia)</li>
+      <li>Less systemic absorption of ICS</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ===== EXACERBATION ===== -->
+<div id="exacerbation" class="section">
+<div class="container">
+  <div class="card">
+    <h2>🚨 Managing Exacerbations</h2>
+    <div class="grid2">
+      <div>
+        <h3>🫁 Acute Asthma – Pharmacist Role</h3>
+        <div class="ae-box">
+          <h4>⚠️ Signs requiring immediate referral/emergency (000)</h4>
+          <ul>
+            <li>Severe breathlessness not relieved by reliever</li>
+            <li>Unable to complete full sentences</li>
+            <li>Confusion, drowsiness, cyanosis</li>
+            <li>Rapid breathing, accessory muscle use</li>
+          </ul>
+        </div>
+        <div class="counsel-box" style="margin-top:10px;">
+          <h4>✅ Immediate Pharmacist Actions</h4>
+          <ul>
+            <li>Refer to Asthma Action Plan</li>
+            <li>Administer salbutamol via pMDI + spacer (4–8 puffs)</li>
+            <li>If no improvement within 20 minutes → call 000</li>
+            <li>Ensure patient knows to seek medical review after any acute attack</li>
+          </ul>
+        </div>
+        <p style="margin-top:10px; font-size:0.85rem;">Refer to National Asthma Council Asthma First Aid: <a href="https://www.nationalasthma.org.au/living-with-asthma/asthma-first-aid" target="_blank">nationalasthma.org.au/asthma-first-aid ↗</a></p>
+      </div>
+      <div>
+        <h3>🌬️ COPD Exacerbation – Pharmacist Role</h3>
+        <div class="ae-box">
+          <h4>⚠️ Send to hospital if:</h4>
+          <ul>
+            <li>Marked increased breathlessness not relieved by SABA</li>
+            <li>SpO₂ &lt;92% (or worsening from usual)</li>
+            <li>High fever or altered mental state</li>
+            <li>Chest pain, new peripheral oedema</li>
+            <li>Inability to perform daily activities safely at home</li>
+          </ul>
+        </div>
+        <div class="counsel-box" style="margin-top:10px;">
+          <h4>✅ Community Management (per COPD Action Plan)</h4>
+          <ul>
+            <li>Increase SABA frequency: salbutamol 4–8 puffs (400–800 mcg) via MDI+spacer every 3–4 hours</li>
+            <li>If action plan includes rescue pack: prednisolone 30–50 mg/day for 5 days</li>
+            <li>Antibiotics (amoxicillin or doxycycline) if signs of infection (increased/changed sputum colour, fever)</li>
+            <li>Advise review by GP within 5 days</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px; background:#fdf2f2;">
+      <h3>🔴 Refer Immediately if No Improvement</h3>
+      <ul>
+        <li><strong>COPD:</strong> Patient still unwell 5 days after treatment → refer to GP/specialist urgently</li>
+        <li><strong>Both:</strong> If patient getting worse on maximal community treatment → emergency department or call 000</li>
+        <li><strong>Post-exacerbation:</strong> Review and update action plan; refer to pulmonary rehabilitation (start within 2–4 weeks of hospital discharge)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Drug data rendered by JS -->
+<script>
+const drugs = [
+  {
+    name: "Salbutamol (Ventolin, Asmol, Airomir Autohaler, Zempreon)",
+    class: "SABA",
+    indication: ["asthma","copd"],
+    devices: ["pMDI","pMDI-BAI"],
+    schedule: "Pharmacist Only Medicine (OTC)",
+    ae: {
+      common: ["Tremor","Palpitations","Headache","Tachycardia"],
+      serious: ["Hypokalaemia at high doses","Cardiac arrhythmia (rare)","Paradoxical bronchospasm (rare)"]
+    },
+    ci: ["Hypersensitivity to salbutamol or excipients"],
+    caution: ["Cardiovascular disease","Hypertension","Hyperthyroidism","Diabetes","Hypokalaemia","Avoid SABA monotherapy in adults/adolescents (no longer recommended)"],
+    counsel: [
+      "Use as needed for symptom relief – do not use regularly without ICS in adults ≥12 yrs",
+      "Tell your doctor if you need it more often or in higher doses",
+      "Use spacer with pMDI (except Autohaler)",
+      "Clean mouthpiece weekly to prevent nozzle blockage",
+      "Know Asthma/COPD Action Plan – what to do in emergency",
+      "Over-reliance on SABA is a warning sign – seek review"
+    ]
+  },
+  {
+    name: "Terbutaline (Bricanyl Turbuhaler)",
+    class: "SABA",
+    indication: ["asthma","copd"],
+    devices: ["DPI-Turbuhaler","Injection"],
+    schedule: "Pharmacist Only Medicine (OTC)",
+    ae: {
+      common: ["Tremor","Palpitations","Headache","Tachycardia"],
+      serious: ["Hypokalaemia at high doses","Cardiac arrhythmia (rare)"]
+    },
+    ci: ["Hypersensitivity to terbutaline"],
+    caution: ["Cardiovascular disease","Hypertension","Hyperthyroidism","Diabetes"],
+    counsel: [
+      "Tell your doctor if you need to use more often or in higher doses",
+      "Turbuhaler must be wiped with clean DRY tissue – must never get wet",
+      "Know Asthma Action Plan and emergency procedures",
+      "Hold upright when loading dose; fast, forceful inhalation"
+    ]
+  },
+  {
+    name: "Ipratropium (Atrovent)",
+    class: "SAMA",
+    indication: ["asthma","copd"],
+    devices: ["pMDI","Nebules"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Headache","Nausea","Taste disturbance","Dry mouth","Throat irritation"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)","Urinary retention (bladder outlet obstruction)","Paradoxical bronchospasm (rare)"]
+    },
+    ci: ["Hypersensitivity to ipratropium, atropine or its derivatives"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Bladder neck obstruction","Stop when starting a LAMA"],
+    counsel: [
+      "Do NOT let powder or mist contact eyes – risk of acute angle-closure glaucoma",
+      "If using nebuliser: close eyes or wear eye protection",
+      "Tell doctor immediately if: eye pain/discomfort, blurred vision, visual halos, difficulty urinating",
+      "Do not drive until you know how this affects you – may cause dizziness or affect vision",
+      "Mainly used for COPD; rarely used in asthma except severe acute attacks"
+    ]
+  },
+  {
+    name: "Budesonide (Pulmicort Turbuhaler)",
+    class: "ICS",
+    indication: ["asthma"],
+    devices: ["DPI-Turbuhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis (thrush)","Dysphonia (hoarse voice)","Cough","Bruising"],
+      serious: ["Systemic effects at high doses: adrenal suppression, reduced bone density (prolonged use)","Small effect on growth in children"]
+    },
+    ci: ["Hypersensitivity to budesonide"],
+    caution: ["Active or quiescent pulmonary TB","Use spacer to reduce local AEs","Growth monitoring in children on long-term therapy"],
+    counsel: [
+      "Use every day even if feeling well – this is a preventive medicine",
+      "Rinse mouth with water, gargle and spit out after EVERY use (prevents oral thrush)",
+      "Use with spacer when using pMDI",
+      "Do not stop suddenly without medical advice",
+      "Know your Asthma Action Plan"
+    ]
+  },
+  {
+    name: "Fluticasone Propionate (Flixotide pMDI/Accuhaler, Axotide, Fluticasone Cipla)",
+    class: "ICS",
+    indication: ["asthma","copd"],
+    devices: ["pMDI","DPI-Accuhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Throat irritation"],
+      serious: ["Systemic effects at high doses (prolonged use)","Increased pneumonia risk in COPD"]
+    },
+    ci: ["Hypersensitivity to fluticasone"],
+    caution: ["TB (active/quiescent)","Systemic fungal infections","Increased pneumonia risk in COPD patients"],
+    counsel: [
+      "Rinse mouth and gargle after every use",
+      "Use spacer with pMDI",
+      "Continue every day; do not stop without medical advice",
+      "Different dosing for asthma vs COPD – check individual CMI"
+    ]
+  },
+  {
+    name: "Beclometasone (QVAR pMDI, Fostair pMDI, Trimbow pMDI)",
+    class: "ICS",
+    indication: ["asthma","copd"],
+    devices: ["pMDI"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Throat irritation"],
+      serious: ["Systemic effects at high dose/long use"]
+    },
+    ci: ["Hypersensitivity to beclometasone"],
+    caution: ["TB (active/quiescent)","Extra-fine particle (QVAR) has different dose equivalence – not interchangeable"],
+    counsel: [
+      "Rinse mouth with water, gargle and spit after every use",
+      "Use spacer with pMDI",
+      "QVAR is an extra-fine formulation – dose differs from other ICS brands",
+      "Fostair/Trimbow: also contains LABA/LAMA – do not add other LABA or LAMA without reviewing"
+    ]
+  },
+  {
+    name: "Ciclesonide (Alvesco pMDI)",
+    class: "ICS",
+    indication: ["asthma"],
+    devices: ["pMDI"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis (lower risk than other ICS)","Dysphonia","Headache"],
+      serious: ["Systemic effects at high doses"]
+    },
+    ci: ["Hypersensitivity to ciclesonide"],
+    caution: ["Pro-drug activated in lungs – lower oropharyngeal AE risk","Still advise rinse as precaution"],
+    counsel: [
+      "Rinse mouth after use even though risk of thrush is lower",
+      "Use spacer with pMDI",
+      "Use every day even when well"
+    ]
+  },
+  {
+    name: "Fluticasone Furoate (Arnuity Ellipta)",
+    class: "ICS",
+    indication: ["asthma"],
+    devices: ["DPI-Ellipta"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Headache"],
+      serious: ["Systemic effects at high doses"]
+    },
+    ci: ["Hypersensitivity to fluticasone furoate"],
+    caution: ["Once daily dosing","TB (active/quiescent)"],
+    counsel: [
+      "Once daily – use at the same time each day",
+      "Rinse mouth after every use",
+      "Store in dry place; keep covered until use"
+    ]
+  },
+  {
+    name: "Budesonide-Formoterol (Symbicort Turbuhaler/Rapihaler, DuoResp Spiromax, Bufomix Easyhaler, BiResp, Rilast)",
+    class: "ICS-LABA",
+    indication: ["asthma","copd"],
+    devices: ["DPI-Turbuhaler","pMDI","DPI-Spiromax","DPI-Easyhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Tremor","Palpitations","Headache (formoterol)","Oropharyngeal candidiasis (budesonide)","Dysphonia"],
+      serious: ["Hypokalaemia (high doses)","Paradoxical bronchospasm","Adrenal suppression (prolonged high dose)"]
+    },
+    ci: ["Hypersensitivity to budesonide or formoterol"],
+    caution: ["MART use: variable dosing – ensure patient understands maintenance vs reliever dose","Do not add SABA when using as MART reliever – formoterol component acts as rapid-onset reliever","Different PBS indications for asthma vs COPD"],
+    counsel: [
+      "For MART: use as maintenance (regular dose) AND as reliever when needed – do NOT also use separate SABA",
+      "Tell your doctor if you need more relief doses than usual",
+      "Rinse mouth after every use (gargle and spit)",
+      "For Turbuhaler: hold upright when loading; fast, forceful inhalation; do NOT wet device",
+      "For Rapihaler pMDI: shake before use; use spacer",
+      "Different asthma/COPD dosing – verify PBS indication"
+    ]
+  },
+  {
+    name: "Beclometasone-Formoterol (Fostair pMDI)",
+    class: "ICS-LABA",
+    indication: ["asthma"],
+    devices: ["pMDI"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Tremor","Palpitations","Oropharyngeal candidiasis","Dysphonia","Headache"],
+      serious: ["Hypokalaemia","Paradoxical bronchospasm"]
+    },
+    ci: ["Hypersensitivity to beclometasone or formoterol"],
+    caution: ["MART available in adults/adolescents","Extra-fine formulation – dose equivalence differs from other ICS"],
+    counsel: [
+      "Rinse mouth with water, gargle and spit after every use",
+      "Use spacer with pMDI",
+      "Extra-fine particle – provides different lung deposition, not interchangeable with other ICS brands",
+      "Tell your doctor if you need reliever doses more often"
+    ]
+  },
+  {
+    name: "Fluticasone Propionate-Salmeterol (Seretide pMDI/Accuhaler, Salflumix, Evocair, Pavtide, Cipla)",
+    class: "ICS-LABA",
+    indication: ["asthma","copd"],
+    devices: ["pMDI","DPI-Accuhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Tremor","Palpitations","Headache"],
+      serious: ["Salmeterol alone (without ICS) – increased risk of serious asthma exacerbations and death","Pneumonia risk in COPD (ICS component)"]
+    },
+    ci: ["Hypersensitivity to fluticasone or salmeterol"],
+    caution: [
+      "LABA must ALWAYS be used with ICS in asthma – never LABA monotherapy",
+      "Salmeterol is NOT rapid-onset – cannot be used as reliever",
+      "Different PBS criteria for asthma vs COPD"
+    ],
+    counsel: [
+      "Maintenance treatment only – do NOT use as a reliever",
+      "Rinse mouth after every use (gargle and spit)",
+      "Use spacer with pMDI",
+      "Use every day; do not stop without medical advice"
+    ]
+  },
+  {
+    name: "Fluticasone Furoate-Vilanterol (Breo Ellipta)",
+    class: "ICS-LABA",
+    indication: ["asthma","copd"],
+    devices: ["DPI-Ellipta"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Tremor","Palpitations","Headache","Nasopharyngitis"],
+      serious: ["Pneumonia risk in COPD","LABA without ICS – avoid in asthma"]
+    },
+    ci: ["Hypersensitivity to fluticasone furoate or vilanterol"],
+    caution: ["Once daily dosing only","Do not use more than once daily","Separate SABA still needed for acute relief in COPD"],
+    counsel: [
+      "Once daily – use at the same time each day",
+      "Rinse mouth after every use",
+      "Do not use for acute symptom relief – keep SABA as reliever",
+      "Keep Ellipta device covered until needed; store in dry place"
+    ]
+  },
+  {
+    name: "Fluticasone Propionate-Formoterol (Flutiform pMDI)",
+    class: "ICS-LABA",
+    indication: ["asthma"],
+    devices: ["pMDI"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Tremor","Palpitations","Headache"],
+      serious: ["LABA without ICS – avoid in asthma"]
+    },
+    ci: ["Hypersensitivity to fluticasone propionate or formoterol"],
+    caution: ["Maintenance only – not for acute relief (formoterol less rapid-onset than budesonide-formoterol)"],
+    counsel: [
+      "Shake before use",
+      "Use spacer with pMDI",
+      "Rinse mouth after every use",
+      "Maintenance only – keep separate SABA as reliever"
+    ]
+  },
+  {
+    name: "Mometasone-Indacaterol (Atectura Breezhaler)",
+    class: "ICS-LABA",
+    indication: ["asthma"],
+    devices: ["DPI-Breezhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Tremor","Palpitations","Nasopharyngitis"],
+      serious: ["LABA without ICS – avoid in asthma"]
+    },
+    ci: ["Hypersensitivity to mometasone or indacaterol"],
+    caution: ["Load capsule each dose – store capsules in blister until use","Once daily dosing"],
+    counsel: [
+      "Load capsule into device fresh each time; pierce before inhaling",
+      "Fast, deep inhalation – hear capsule rattle",
+      "Capsule should be empty after use",
+      "Rinse mouth after each use",
+      "Once daily maintenance only – keep SABA as reliever"
+    ]
+  },
+  {
+    name: "Tiotropium (Spiriva HandiHaler, Spiriva Respimat, Braltus Zonda)",
+    class: "LAMA",
+    indication: ["copd","asthma"],
+    devices: ["DPI-HandiHaler","SMI-Respimat","DPI-Zonda"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Constipation","Urinary retention","Throat irritation","Sinusitis"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction","Paradoxical bronchospasm (rare)","Arrhythmias (rare)"]
+    },
+    ci: ["Hypersensitivity to tiotropium, atropine, or ipratropium","Severe milk protein allergy (HandiHaler capsules contain lactose)"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Bladder neck obstruction","Renal impairment (dose adjustment may be needed)","HandiHaler device purchased separately"],
+    counsel: [
+      "Do NOT let mist contact eyes – risk of acute angle-closure glaucoma",
+      "Tell doctor immediately if: eye pain, blurred vision, halos around lights, difficulty urinating",
+      "Do not use for immediate symptom relief – keep SABA for acute relief",
+      "HandiHaler: load capsule each day; pierce; inhale deeply; do NOT swallow capsule",
+      "Respimat: slow, sustained inhalation (different to DPI); hold breath 10 sec",
+      "Zonda: load capsule; pierce; inhale deeply",
+      "Once daily dosing – take at the same time each day"
+    ]
+  },
+  {
+    name: "Glycopyrronium (Seebri Breezhaler)",
+    class: "LAMA",
+    indication: ["copd"],
+    devices: ["DPI-Breezhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Nasopharyngitis","Urinary retention","Constipation"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction"]
+    },
+    ci: ["Hypersensitivity to glycopyrronium"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Renal impairment"],
+    counsel: [
+      "Do NOT let powder contact eyes",
+      "Tell doctor if: eye pain, blurred vision, difficulty urinating",
+      "Load capsule each dose from blister; pierce and inhale fast and deep",
+      "Do not use for acute relief"
+    ]
+  },
+  {
+    name: "Umeclidinium (Incruse Ellipta)",
+    class: "LAMA",
+    indication: ["copd"],
+    devices: ["DPI-Ellipta"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Nasopharyngitis","Urinary retention"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction"]
+    },
+    ci: ["Hypersensitivity to umeclidinium","Severe milk protein allergy"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia"],
+    counsel: [
+      "Once daily – take at same time each day",
+      "Do NOT let powder contact eyes",
+      "Ellipta: open cover to load dose; fast, deep inhalation; hold breath 5–10 sec",
+      "Do not use for immediate relief"
+    ]
+  },
+  {
+    name: "Aclidinium (Bretaris Genuair)",
+    class: "LAMA",
+    indication: ["copd"],
+    devices: ["DPI-Genuair"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Nasopharyngitis","Sinusitis","Urinary retention"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)"]
+    },
+    ci: ["Hypersensitivity to aclidinium"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Twice daily dosing (unlike other LAMAs)"],
+    counsel: [
+      "Twice daily dosing – 12 hours apart",
+      "Press button to load; breathe out away from device; inhale fast and deep until click",
+      "Window turns green when dose taken correctly",
+      "Do NOT let powder contact eyes"
+    ]
+  },
+  {
+    name: "Salmeterol (Serevent Accuhaler)",
+    class: "LABA",
+    indication: ["asthma","copd"],
+    devices: ["DPI-Accuhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Tremor","Palpitations","Headache","Tachycardia"],
+      serious: ["LABA without ICS – increased risk of serious asthma exacerbations and death","Hypokalaemia","Arrhythmias (rare)"]
+    },
+    ci: ["Hypersensitivity to salmeterol","LABA monotherapy in asthma without ICS – CONTRAINDICATED"],
+    caution: ["Always use with ICS in asthma","Salmeterol is NOT a quick-onset bronchodilator – not for acute relief"],
+    counsel: [
+      "NEVER use alone for asthma – always with ICS",
+      "NOT for acute symptom relief",
+      "Maintenance only; twice daily",
+      "Open, slide lever on Accuhaler to load dose; fast, deep inhalation"
+    ]
+  },
+  {
+    name: "Formoterol (Oxis Turbuhaler, Foradile Aerolizer)",
+    class: "LABA",
+    indication: ["asthma","copd"],
+    devices: ["DPI-Turbuhaler","DPI-Aerolizer"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Tremor","Palpitations","Headache","Tachycardia"],
+      serious: ["LABA without ICS in asthma – increased risk of serious events","Hypokalaemia"]
+    },
+    ci: ["Hypersensitivity to formoterol","LABA monotherapy in asthma without ICS – CONTRAINDICATED"],
+    caution: ["When used as part of ICS-formoterol MART: rapid onset allows use as reliever – but SABA should NOT be added","Always use with ICS in asthma"],
+    counsel: [
+      "If prescribed as part of MART (combined with ICS): can be used as reliever AND maintenance",
+      "As single-ingredient formoterol: only for maintenance in combination with ICS – never use alone in asthma",
+      "Foradile: load capsule into Aerolizer device each dose",
+      "Oxis Turbuhaler: hold upright when loading; fast, forceful inhalation"
+    ]
+  },
+  {
+    name: "Indacaterol (Onbrez Breezhaler)",
+    class: "LABA",
+    indication: ["copd"],
+    devices: ["DPI-Breezhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Cough (post-inhalation, usually brief)","Nasopharyngitis","Tremor","Palpitations"],
+      serious: ["Hypokalaemia"]
+    },
+    ci: ["Hypersensitivity to indacaterol"],
+    caution: ["COPD only; not licensed for asthma as monotherapy","Once daily"],
+    counsel: [
+      "Load capsule into device each dose; pierce; inhale fast and deep",
+      "Coughing briefly after inhalation is common and harmless",
+      "Once daily; continue with SABA for acute relief"
+    ]
+  },
+  {
+    name: "Umeclidinium-Vilanterol (Anoro Ellipta)",
+    class: "LAMA-LABA",
+    indication: ["copd"],
+    devices: ["DPI-Ellipta"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Nasopharyngitis","Urinary retention","Tremor","Palpitations"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction","Arrhythmias (rare)"]
+    },
+    ci: ["Hypersensitivity to umeclidinium or vilanterol","Severe milk protein allergy"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Not for acute relief","Once daily only"],
+    counsel: [
+      "Once daily – take at same time each day",
+      "Do NOT let powder contact eyes",
+      "Ellipta: open cover; fast, deep inhalation; hold breath 5–10 sec",
+      "Not for immediate relief – keep SABA"
+    ]
+  },
+  {
+    name: "Tiotropium-Olodaterol (Spiolto Respimat)",
+    class: "LAMA-LABA",
+    indication: ["copd"],
+    devices: ["SMI-Respimat"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Nasopharyngitis","Cough","Urinary retention","Tremor"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction","Arrhythmias (rare)"]
+    },
+    ci: ["Hypersensitivity to tiotropium or olodaterol"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Renal impairment","Once daily"],
+    counsel: [
+      "Insert cartridge initially; once daily – take at same time each day",
+      "Slow, sustained inhalation (unlike DPIs)",
+      "Do NOT let mist contact eyes",
+      "Not for immediate relief – keep SABA"
+    ]
+  },
+  {
+    name: "Glycopyrronium-Indacaterol (Ultibro Breezhaler)",
+    class: "LAMA-LABA",
+    indication: ["copd"],
+    devices: ["DPI-Breezhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Nasopharyngitis","Cough","Tremor","Palpitations"],
+      serious: ["Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction"]
+    },
+    ci: ["Hypersensitivity to glycopyrronium or indacaterol"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Renal impairment","Once daily"],
+    counsel: [
+      "Load capsule each dose; pierce; fast, deep inhalation",
+      "Brief cough after inhalation is common",
+      "Do NOT let powder contact eyes",
+      "Once daily; not for acute relief"
+    ]
+  },
+  {
+    name: "Aclidinium-Formoterol (Brimica Genuair)",
+    class: "LAMA-LABA",
+    indication: ["copd"],
+    devices: ["DPI-Genuair"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Dry mouth","Nasopharyngitis","Tremor","Palpitations","Urinary retention"],
+      serious: ["Acute angle-closure glaucoma","Bladder outlet obstruction"]
+    },
+    ci: ["Hypersensitivity to aclidinium or formoterol"],
+    caution: ["Twice daily (unlike most LAMA-LABAs which are once daily)","Narrow-angle glaucoma","Prostatic hyperplasia"],
+    counsel: [
+      "Twice daily – 12 hours apart",
+      "Press button to load; fast, deep inhalation until click heard",
+      "Window turns green when correct",
+      "Do NOT let powder contact eyes"
+    ]
+  },
+  {
+    name: "Fluticasone Furoate-Umeclidinium-Vilanterol (Trelegy Ellipta)",
+    class: "ICS-LABA-LAMA",
+    indication: ["copd","asthma"],
+    devices: ["DPI-Ellipta"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Dry mouth","Nasopharyngitis","Urinary retention","Tremor"],
+      serious: ["Pneumonia (ICS in COPD)","Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction","Adrenal suppression (high dose, prolonged)"]
+    },
+    ci: ["Hypersensitivity to fluticasone furoate, umeclidinium, or vilanterol","Severe milk protein allergy"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Check PBS criteria for triple therapy","Once daily"],
+    counsel: [
+      "Once daily at same time each day",
+      "Rinse mouth after every use (gargle and spit)",
+      "Do NOT let powder contact eyes",
+      "Ellipta: open cover to prepare dose; fast, deep inhalation",
+      "Check PBS criteria: severe COPD + ≥1 hospitalisation OR ≥2 moderate exacerbations + significant symptoms on LAMA-LABA or ICS-LABA"
+    ]
+  },
+  {
+    name: "Budesonide-Glycopyrronium-Formoterol (Breztri Aerosphere pMDI)",
+    class: "ICS-LABA-LAMA",
+    indication: ["copd"],
+    devices: ["pMDI"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Dry mouth","Urinary retention","Tremor","Nasopharyngitis"],
+      serious: ["Pneumonia (ICS in COPD)","Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction"]
+    },
+    ci: ["Hypersensitivity to budesonide, glycopyrronium, or formoterol"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Check PBS criteria for triple therapy","Twice daily"],
+    counsel: [
+      "Twice daily – morning and evening",
+      "Rinse mouth after every use (gargle and spit)",
+      "Shake before use; use spacer with pMDI",
+      "Do NOT let mist contact eyes",
+      "Not for acute relief – keep SABA"
+    ]
+  },
+  {
+    name: "Beclometasone-Glycopyrronium-Formoterol (Trimbow pMDI)",
+    class: "ICS-LABA-LAMA",
+    indication: ["copd","asthma"],
+    devices: ["pMDI"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Dry mouth","Urinary retention","Tremor","Nasopharyngitis"],
+      serious: ["Pneumonia (ICS in COPD)","Acute angle-closure glaucoma (if eyes exposed)","Bladder outlet obstruction"]
+    },
+    ci: ["Hypersensitivity to beclometasone, glycopyrronium, or formoterol"],
+    caution: ["Narrow-angle glaucoma","Prostatic hyperplasia","Extra-fine formulation","Check PBS criteria"],
+    counsel: [
+      "Twice daily – morning and evening",
+      "Shake before use; use spacer",
+      "Rinse mouth after every use",
+      "Do NOT let mist contact eyes",
+      "Extra-fine particle formulation – not interchangeable with other triple inhalers on dose basis"
+    ]
+  },
+  {
+    name: "Mometasone-Glycopyrronium-Indacaterol (Enerzair Breezhaler)",
+    class: "ICS-LABA-LAMA",
+    indication: ["asthma"],
+    devices: ["DPI-Breezhaler"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Oropharyngeal candidiasis","Dysphonia","Dry mouth","Nasopharyngitis","Tremor"],
+      serious: ["LABA without ICS in asthma – CONTRAINDICATED","Acute angle-closure glaucoma (if eyes exposed)"]
+    },
+    ci: ["Hypersensitivity to mometasone, glycopyrronium, or indacaterol"],
+    caution: ["For severe uncontrolled asthma; once daily","Narrow-angle glaucoma","Prostatic hyperplasia"],
+    counsel: [
+      "Load capsule each dose from blister; pierce and inhale fast and deep",
+      "Rinse mouth after every use",
+      "Do NOT let powder contact eyes",
+      "Once daily; not for acute relief – keep SABA"
+    ]
+  },
+  {
+    name: "Montelukast (Singulair, generic)",
+    class: "LTRA",
+    indication: ["asthma"],
+    devices: ["Oral tablet/chewable"],
+    schedule: "Prescription",
+    ae: {
+      common: ["Headache","Abdominal pain","Diarrhoea","Upper respiratory infection"],
+      serious: ["Neuropsychiatric effects: nightmares, hallucinations, mood/behavioural changes, anxiety, depression, aggression, suicidal thoughts (TGA safety warning Jan 2025)"]
+    },
+    ci: ["Hypersensitivity to montelukast"],
+    caution: [
+      "⚠️ TGA January 2025 Safety Update: more prominent warnings about neuropsychiatric effects",
+      "Weigh benefits vs risks; discuss with patient/carer",
+      "Monitor for mood or behavioural changes especially in children"
+    ],
+    counsel: [
+      "Take in the EVENING",
+      "Chewable tablets: chew thoroughly – do NOT swallow whole",
+      "Do NOT use to relieve acute asthma symptoms – follow action plan",
+      "Tell your doctor IMMEDIATELY if you notice any change in mood, behaviour, sleep, or thoughts",
+      "Generally less effective than low-dose ICS for asthma prevention",
+      "TGA safety update (Jan 2025): neuropsychiatric effects are a serious concern – discuss risk-benefit with doctor"
+    ]
+  }
+];
+
+function renderDrugs(list) {
+  const container = document.getElementById('drugList');
+  if (!list.length) { container.innerHTML = '<p style="color:var(--muted);padding:20px 0;">No medicines match your filters.</p>'; return; }
+  container.innerHTML = list.map((d,i) => `
+    <div class="card" style="margin-bottom:14px;" id="drug${i}">
+      <div class="drug-header">
+        <h2 style="font-size:1rem;">${d.name} <span class="badge badge-blue">${d.class}</span>
+          ${d.indication.includes('asthma') ? '<span class="badge badge-green">Asthma</span>' : ''}
+          ${d.indication.includes('copd') ? '<span class="badge badge-orange">COPD</span>' : ''}
+        </h2>
+        <span style="font-size:0.8rem;color:var(--muted);">📋 ${d.schedule}</span>
+      </div>
+      <div style="margin:6px 0 8px;">
+        ${d.devices.map(dev => {
+          let cls = dev.startsWith('pMDI')||dev.startsWith('SMI') ? 'tag-pMDI' : dev.startsWith('Oral') ? '' : 'tag-DPI';
+          return `<span class="device-chip ${cls}">${dev}</span>`;
+        }).join('')}
+      </div>
+      <details class="accordion">
+        <summary>⚠️ Adverse Effects</summary>
+        <div class="ae-box" style="margin-top:8px;">
+          <h4>Common</h4>
+          <ul>${d.ae.common.map(x=>`<li>${x}</li>`).join('')}</ul>
+          ${d.ae.serious.length ? `<h4 style="margin-top:8px;">Serious / Warnings</h4><ul>${d.ae.serious.map(x=>`<li><strong>${x}</strong></li>`).join('')}</ul>` : ''}
+        </div>
+      </details>
+      <details class="accordion" style="margin-top:6px;">
+        <summary>🚫 Contraindications &amp; Cautions</summary>
+        <div class="ci-box" style="margin-top:8px;">
+          <h4>Contraindications</h4>
+          <ul>${d.ci.map(x=>`<li>${x}</li>`).join('')}</ul>
+          ${d.caution.length ? `<h4 style="margin-top:8px;">Cautions / Precautions</h4><ul>${d.caution.map(x=>`<li>${x}</li>`).join('')}</ul>` : ''}
+        </div>
+      </details>
+      <details class="accordion" style="margin-top:6px;">
+        <summary>💬 Counselling Points</summary>
+        <div class="counsel-box" style="margin-top:8px;">
+          <ul>${d.counsel.map(x=>`<li>${x}</li>`).join('')}</ul>
+        </div>
+      </details>
+    </div>
+  `).join('');
+}
+
+function filterDrugs() {
+  const cls = document.getElementById('drugClassFilter').value;
+  const ind = document.getElementById('indicationFilter').value;
+  const filtered = drugs.filter(d => {
+    const clsMatch = cls === 'all' || d.class === cls;
+    const indMatch = ind === 'all' || d.indication.includes(ind);
+    return clsMatch && indMatch;
+  });
+  renderDrugs(filtered);
+}
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  const idx = ['medicines','asthma','copd','devices','counsel','spacers','exacerbation'].indexOf(id);
+  document.querySelectorAll('nav button')[idx].classList.add('active');
+}
+
+function resetCL(prefix, n) {
+  for(let i=1; i<=n; i++) {
+    const el = document.getElementById(prefix+i);
+    if(el) el.checked = false;
+  }
+}
+
+renderDrugs(drugs);
+</script>
+</body>
+</html>
